@@ -1,5 +1,6 @@
 /* 
   Transport Door Chime Program 
+  by Hiroshi Obata
 
   sudo apt-get install libasound2-dev libfftw3-dev libsndfile1-dev
   gcc -o door -lasound -lm -lfftw3 -lsndfile main.c
@@ -18,6 +19,7 @@
 #include <complex.h>
 #include <fftw3.h>
 #include <sndfile.h>
+#include <math.h>
 
 //#define GET_PEAK // search peak data: ./door hw:1 > out.txt
 
@@ -28,10 +30,10 @@
 typedef struct {
   int ce;
   int wi;
-  int th;
+  double th;
 } peak_t;
 
-peak_t pk_ref[] = { {753,2,500}, {602,2,500}, {901,2,400} };
+peak_t pk_ref[] = { {751,3, 6.0}, {602,3, 6.0}, {901,2, 6.0} };
 
 short  *ps_raw; /* pcm data */
 double *pd_ref = NULL;	/* after DCT ref. */
@@ -64,7 +66,7 @@ void mk_ref(int num, double *pd_ref, fftw_complex *p)
 
   printf("mk_ref:in\n");
   for (i=0; i<num; i++, p++, pd_ref++){
-    *pd_ref = csqrt(*p);
+    *pd_ref = log10(cabs(*p));
   }
   printf("mk_ref:out\n");
 }
@@ -100,7 +102,7 @@ int chk_peak(fftw_complex *p)
 
   for (i=0; i<pk_num; i++, pr++){
     for (j= pr->ce - pr->wi; j< pr->ce + pr->wi; j++){
-      if ((double)csqrt(p[j]) > pr->th){
+      if (log10(cabs(p[j])) > pr->th){
         flag |= 0x1 << i;
         break;
       }
