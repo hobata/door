@@ -1,6 +1,5 @@
 /* 
   Transport Door Chime Program 
-  by Hiroshi Obata
 
   sudo apt-get install libasound2-dev libfftw3-dev libsndfile1-dev
   gcc -o door -lasound -lm -lfftw3 -lsndfile main.c
